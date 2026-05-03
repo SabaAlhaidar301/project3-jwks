@@ -434,7 +434,7 @@ def test_get_wrong_path():
             conn.request("GET", "/invalid-endpoint")
             resp = conn.getresponse()
             resp.read()
-            assert resp.status == 405, f"Expected 405 for wrong path, got {resp.status}"
+            assert resp.status == 404, f"Expected 404 for wrong path, got {resp.status}"
             print(f"✓ PASS: GET to wrong path returns 405")
         finally:
             print("[CLEANUP] Stopping server...")
@@ -891,7 +891,7 @@ def test_log_auth_attempt():
 def test_rate_limiter_allows_initial_request():
     """Test that rate limiter allows first request"""
     print("\n[TEST] Rate limiter allows initial request")
-    limiter = main.RateLimiter(rate_per_second=10)
+    limiter = main.RateLimiter(max_requests=10, window_seconds=1)
     
     assert limiter.is_allowed("192.168.1.1") is True
     print("✓ PASS: Initial request allowed")
@@ -901,7 +901,7 @@ def test_rate_limiter_allows_initial_request():
 def test_rate_limiter_blocks_when_exhausted():
     """Test that rate limiter blocks when tokens exhausted"""
     print("\n[TEST] Rate limiter blocks when exhausted")
-    limiter = main.RateLimiter(rate_per_second=2)
+    limiter = main.RateLimiter(max_requests=2, window_seconds=1)
     
     # Use up tokens
     assert limiter.is_allowed("192.168.1.1") is True
